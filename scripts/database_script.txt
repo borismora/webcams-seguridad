@@ -1,0 +1,3 @@
+mysql> create database users;
+mysql> USE  users;
+mysql> CREATE TABLE user(userid INT NOT NULL AUTO_INCREMENT, PRIMARY KEY(userid), username VARCHAR(400) NOT NULL, password VARCHAR(400) NOT NULL);
