@@ -1,0 +1,151 @@
+extends layout
+     
+block content
+
+    img(id='miImg', width='600', style="width: 100%; height: auto;", hidden)
+    canvas(id="canvas", width='600', height="480", style="width: 100%; height: auto;")
+    input(type="text", id="ip", value=myip , hidden)
+    script(src="/socket.io/socket.io.js")
+    script
+        var websocket = io.connect(document.getElementById("ip").value+":4000");
+        websocket.on('setFrame',proc);
+        function proc(img)
+        {
+            document.querySelector('#miImg').src = img;
+            var c=document.getElementById("canvas");
+            var ctx=c.getContext("2d");
+            var img=document.getElementById("miImg");
+            ctx.drawImage(img,10,10);
+        };
+
+    button(id="record") Start Recording
+
+    form(action='/nueva', method='post', name="formulario1")
+        input(id='ip_camara', name="ip_camara", value=ip_camara, hidden)
+        br
+        input(id='fecha', name="fecha", hidden)
+        br
+        input(id='username', name="username", value="usuario", hidden)
+        br
+        input(id='direccion', name="direccion", hidden)
+        br
+
+
+     //GRABACIÓN Y GUARDADO
+    script
+        var mediaSource = new MediaSource();
+        mediaSource.addEventListener('sourceopen', handleSourceOpen, false);
+        var mediaRecorder;
+        var recordedBlobs;
+        var sourceBuffer;
+
+        var canvas = document.querySelector('canvas');
+        var video = document.querySelector('canvas');
+
+        var recordButton = document.querySelector('button#record');
+        var playButton = document.querySelector('button#play');
+        var downloadButton = document.querySelector('button#download');
+        recordButton.onclick = toggleRecording;
+
+        // Call main() in demo.js to init teapot
+
+        // window.isSecureContext could be used for Chrome
+
+        var stream = canvas.captureStream(); // frames per second
+        console.log('Started stream capture from canvas element: ', stream);
+
+        function handleSourceOpen(event) {
+          console.log('MediaSource opened');
+          sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="vp8"');
+          console.log('Source buffer: ', sourceBuffer);
+        }
+
+        function handleDataAvailable(event) {
+            if (event.data && event.data.size > 0) {
+                recordedBlobs.push(event.data);
+            }
+        }
+
+        function handleStop(event) {
+          console.log('Recorder stopped: ', event);
+        }
+
+        function toggleRecording() {
+          if (recordButton.textContent === 'Start Recording') {
+            startRecording();
+          } else {
+            stopRecording();
+            recordButton.textContent = 'Start Recording';
+          }
+        }
+
+        // The nested try blocks will be simplified when Chrome 47 moves to Stable
+        function startRecording() {
+          var options = {mimeType: 'video/webm'};
+          recordedBlobs = [];
+          try {
+            mediaRecorder = new MediaRecorder(stream, options);
+          } catch (e0) {
+            console.log('Unable to create MediaRecorder with options Object: ', e0);
+            try {
+              options = {mimeType: 'video/mp4,codecs=vp9'};
+              mediaRecorder = new MediaRecorder(stream, options);
+            } catch (e1) {
+              console.log('Unable to create MediaRecorder with options Object: ', e1);
+              try {
+                options = 'video/vp8'; // Chrome 47
+                mediaRecorder = new MediaRecorder(stream, options);
+              } catch (e2) {
+                alert('MediaRecorder is not supported by this browser.\n\n' +
+                    'Try Firefox 29 or later, or Chrome 47 or later, with Enable experimental Web Platform features enabled from chrome://flags.');
+                console.error('Exception while creating MediaRecorder:', e2);
+                return;
+              }
+            }
+          }
+          console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+          recordButton.textContent = 'Stop Recording';
+          mediaRecorder.onstop = handleStop;
+          mediaRecorder.ondataavailable = handleDataAvailable;
+          mediaRecorder.start(100); // collect 100ms of data
+          console.log('MediaRecorder started', mediaRecorder);
+        }
+
+        function stopRecording() {
+          mediaRecorder.stop();
+          console.log('Recorded Blobs: ', recordedBlobs);
+          video.controls = true;
+          download();
+        }
+
+        function play() {
+          var superBuffer = new Blob(recordedBlobs, {type: 'video/mp4'});
+          video.src = window.URL.createObjectURL(superBuffer);
+        }
+
+        function download() {
+          
+          var f = new Date();
+          var dia = f.getDate();
+          var mes = f.getMonth();
+          var year = f.getFullYear();
+
+          var name = dia+'-'+mes+"-"+year+"_"+f.getHours()+"-"+f.getMinutes()+"-"+f.getSeconds(); ;
+          document.getElementById("fecha").value = name;
+          document.getElementById("direccion").value = "/movies/"+name+".mp4";
+
+          var blob = new Blob(recordedBlobs, {type: 'video/mp4'});
+          var url = window.URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = name+".mp4";
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function() {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+          }, 100);
+          //Se envia el formulario para al consulta INSERT
+          document.formulario1.submit() 
+        }

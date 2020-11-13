@@ -1,0 +1,44 @@
+extends layout
+     
+block content
+
+    script(type="text/javascript")
+        $(document).ready(function(){
+            $('.lightbox').click(function(){
+                $('.backdrop, .box').animate({'opacity':'.50'}, 300, 'linear');
+                $('.box').animate({'opacity':'1.00'}, 300, 'linear');
+                $('.backdrop, .box').css('display', 'block');
+            });
+
+            $('.close').click(function(){
+                close_box();
+            });
+
+            $('.backdrop').click(function(){
+                close_box();
+            });
+
+        })
+
+        function close_box() {
+            $('.backdrop, .box').animate({'opacity':'0'}, 300, 'linear', function(){
+                $('.backdrop, .box').css('display', 'none');
+            });
+        }
+
+
+
+
+    h1(style="color:white;") Lista de videos
+    if videos.length == 0
+        p No existen videos
+    else
+        for vid in videos
+            video(class="caja", src=vid.direccion, controls, width='600', style="width: 100%; height: auto;")
+            div
+                input(value=vid.id, style="color:white; background:black;", readonly)  
+                input(value=vid.ip_camara, style="color:white; background:black;", readonly)  
+                input(value=vid.fecha, style="color:white; background:black;", readonly)  
+                input(value=vid.username, style="color:white; background:black;", readonly)  
+
+            br

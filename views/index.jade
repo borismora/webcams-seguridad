@@ -1,0 +1,52 @@
+doctype html
+html(lang="es")
+	head
+		meta(charset="utf-8")
+		meta(name="viewport", content="width=device-width, initial-scale=1.0")
+		script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js")
+		link(rel="stylesheet", href="style.css")
+
+		script.
+			$(document).ready(function(){
+				$("#submit").click(function(){
+					$.post("/login",
+					{
+						username: $("#username").val(),
+						password: $("#password").val()
+					},
+					function(data, status){
+						if (typeof data.redirect == 'string') window.location = data.redirect;
+						else {
+							$(".error" ).text(data.status).show( "slow","linear" ).fadeOut();
+						}
+					});
+				});
+			});
+
+	body
+
+		.header
+			h1 Portal Securitrix
+
+		.clearfix
+
+			.error(hidden)
+			.login
+				br
+				form(action="/login", method="post")
+					div
+						label Nombre de Usuario: 
+						input(type="text", id="username", name="username")
+						br
+
+					div
+						label Password: 
+						input(type="password", id="password", name="password")
+
+					.menu
+						ul(align="center")
+							li(id="submit") Enviar
+
+
+		.footer
+			p Todos los derechos reservados ©

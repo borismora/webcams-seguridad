@@ -1,0 +1,55 @@
+extends layout
+     
+block content
+
+    br
+    video(autoplay, width='600', style="width: 100%; height: auto;", controls)
+    canvas(id='miCanvas', width='600', height='500', hidden)
+    input(value="Su IP es: "+myip, style="color:white; background:black;", readonly)  
+    script(src="/socket.io/socket.io.js") 
+
+    input(type="text", id="ip2", value=ip_server, hidden)
+
+    //STREAMING
+    script.
+        var bandera=0;
+        var websocket = io.connect(document.getElementById("ip2").value+":4000");
+        window.URL = window.URL || window.webkitURL;
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+        navigator.getUserMedia({audio: true, video:true}, function(vid){
+            bandera = 1;
+            document.querySelector('video').src = window.URL.createObjectURL(vid);
+        }, function (){console.warn("Error getting audio stream from getUserMedia")});
+        
+        window.requestAnimFrame = (function(callback){
+            return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function(callback){
+                window.setTimeout(callback, 1000 / 100);
+            };
+        })();
+
+        function dFrame(ctx,video,canvas)
+        {
+            ctx.drawImage(video,0,0);
+            var dataURL = canvas.toDataURL('image/jpeg',0.9);
+            if(bandera!=0) websocket.emit('newFrame',dataURL);
+            requestAnimFrame(function(){
+                setTimeout(function(){dFrame(ctx,video,canvas);},200)
+            });
+        }
+
+        window.addEventListener('load',init);
+
+        function init()
+        {
+            var canvas = document.querySelector('#miCanvas');
+            var video = document.querySelector('video');
+            var ctx = canvas.getContext('2d');
+            dFrame(ctx,video,canvas);
+        }
+

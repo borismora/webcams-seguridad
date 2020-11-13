@@ -1,0 +1,52 @@
+doctype html
+html(lang="es")
+    head
+        meta(charset="utf-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        link(href='//unpkg.com/purecss@1.0.0/build/pure-min.css', rel='stylesheet')
+        link(rel="stylesheet", href="css/layouts/side-menu.css")
+        link(rel="stylesheet", type="text/css", href="css/estilo.css")
+        link(rel="stylesheet", type="text/css", href="css/lightbox.css")
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js")
+        meta(name="description", content="A layout example with a side menu that hides on mobile, just like the Pure website.")
+        title Seguridad
+
+    body(style="text-align:center") 
+
+        link(rel="stylesheet", href="css/layouts/side-menu.css")
+
+        #layout
+            a(href='#menu', id="menuLink", class="menu-link") 
+                span
+
+            #menu
+                .pure-menu
+                    a(class="pure-menu-heading", href="#") Sistema 
+
+                    .pure-menu-list
+                        li(class="pure-menu-item")
+                            a(href="index2", class="pure-menu-link") Home
+                        li(class="pure-menu-item")
+                            a(href="#", class="pure-menu-link") About
+                        li(class="pure-menu-item")
+                            a(href="stream", class="pure-menu-link") Capturar
+                        li(class="pure-menu-item")
+                            a(href="cliente", class="pure-menu-link") Ver
+
+
+            #main
+                .header
+                    h1(style="color: white;") Sistema Securitrix
+                    h2(Aqui va el eslogan)
+
+
+                .content
+                    div(style="margin:0, auto;color:red)
+                        block content
+
+                        h2(class="content-subhead") Informacion extra
+                        p(style="color: white;")
+                            |Sistema de seguridad utilizando File System para el manejo de videos, WEBRTC para streaming y socket.io para transmitir la imagen.
+                            |<br>Todos los derechos reservados.  
+
+                        script(src="js/ui.js")
